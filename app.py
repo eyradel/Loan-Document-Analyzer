@@ -4,10 +4,7 @@ import fitz
 from dotenv import load_dotenv
 from openai import OpenAI
 
-
 load_dotenv()
-
-
 
 def ui():
     st.markdown(
@@ -20,8 +17,7 @@ def ui():
         'crossorigin="anonymous">',
         unsafe_allow_html=True,
     )
-    st.markdown("", unsafe_allow_html=True)
-
+    
     hide_streamlit_style = """
                 <style>
                     header{visibility:hidden;}
@@ -31,6 +27,30 @@ def ui():
                     }
                     #MainMenu {visibility: hidden;}
                     footer {visibility: hidden;}
+                    .reportview-container {
+                        padding-top: 0;
+                    }
+                    .loan-summary {
+                        background-color: white;
+                        padding: 20px;
+                        color:black;
+                        border-radius: 5px;
+                        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                    }
+                    .loan-summary h1 {
+                        color: #4267B2;
+                        font-size: 24px;
+                        margin-bottom: 20px;
+                    }
+                    .loan-summary h2 {
+                        color: #4267B2;
+                        font-size: 18px;
+                        margin-top: 15px;
+                        margin-bottom: 10px;
+                    }
+                    .loan-summary hr {
+                        margin: 15px 0;
+                    }
                 </style>
                 """
     st.markdown(hide_streamlit_style, unsafe_allow_html=True)
@@ -44,12 +64,7 @@ def ui():
         unsafe_allow_html=True,
     )
 
-ui()
-
-
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
-
 
 def extract_text_from_multiple_pdfs(uploaded_files):
     """Extract text from multiple uploaded PDFs using PyMuPDF."""
@@ -68,7 +83,7 @@ def get_completion(prompt):
         completion = client.chat.completions.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "You are a loan officer analyzing documents."},
+                {"role": "system", "content": "You are a loan officer creating a concise, professional summary of loan application documents. Focus on key information and present it in a clear, structured format."},
                 {"role": "user", "content": prompt}
             ]
         )
@@ -77,96 +92,97 @@ def get_completion(prompt):
         st.error(f"An error occurred while communicating with OpenAI: {str(e)}")
         return None
 
-def process_loan_summary(extracted_text):
-    """Generate a loan summary using OpenAI."""
+def generate_loan_summary(extracted_text):
+    """Generate a comprehensive but concise loan summary."""
     prompt = f"""
-    Based on the following loan application documents, provide a concise summary of:
-    1. Applicant's personal information
-    2. Loan amount requested
-    3. Purpose of the loan
-    4. Financial information (income, assets, debts)
-    5. Credit history highlights
-    6. Any red flags or concerns
+    Create a concise, one to two page summary of this loan application. Structure the summary as follows:
 
-    Documents text:
-    {extracted_text}
-    """
-    return get_completion(prompt)
+    1. APPLICANT OVERVIEW
+    - Full name, contact details (format appropriately)
+    - Brief employment status
+    - Key financial indicators (income, major assets)
 
-def process_detailed_analysis(extracted_text):
-    """Generate a detailed loan analysis using OpenAI."""
-    prompt = f"""
-    Provide a detailed analysis of these loan application documents with the following structure:
-
-    1. APPLICANT PROFILE
-    - Name and contact information
-    - Employment history
-    - Current income and employment status
-
-    2. LOAN DETAILS
-    - Requested amount
+    2. LOAN REQUEST
+    - Amount requested
     - Purpose of loan
-    - Proposed terms
+    - Proposed terms (if specified)
 
-    3. FINANCIAL ASSESSMENT
-    - Income analysis
+    3. DOCUMENTATION VERIFICATION
+    - List provided documents
+    - Note any missing critical documents
+    - Confirm validity of identity documents
+
+    4. FINANCIAL ASSESSMENT
+    - Monthly income
     - Debt-to-income ratio
-    - Asset verification
-    - Liabilities
+    - Major assets and liabilities
+    - Credit score/history summary
 
-    4. CREDIT ANALYSIS
-    - Credit score
-    - Payment history
-    - Outstanding debts
-    - Previous loans
-
-    5. RISK ASSESSMENT
-    - Identify potential risks
+    5. RISK ANALYSIS
+    - Key strengths of application
+    - Potential concerns
     - Mitigating factors
-    - Recommendation
+
+    6. RECOMMENDATION
+    - Clear approval/denial recommendation
+    - If approved, suggested terms
+    - If denied, primary reasons
+
+    Format the summary in a professional, easy-to-read manner. Be concise but thorough.
+    Use bullet points where appropriate for readability.
 
     Documents text:
     {extracted_text}
     """
     return get_completion(prompt)
+
+def display_summary(summary):
+    """Display the loan summary in a nicely formatted way."""
+    st.markdown("""
+    <div class="loan-summary">
+        <h1>Loan Application Summary</h1>
+        {summary}
+    </div>
+    """.format(summary=summary.replace('\n', '<br>')), unsafe_allow_html=True)
 
 def main():
-    """Main function to run the Streamlit app."""
-
+    ui()
     
     if not os.getenv("OPENAI_API_KEY"):
         st.error("OpenAI API key not found. Please set the OPENAI_API_KEY environment variable.")
         return
     
+    st.markdown("### Required Documentation")
+    st.info("""
+    Please provide the following documents:
+    1. Completed application form
+    2. Proof of identity (two forms required)
+    3. Income verification documents
+    """)
 
     uploaded_files = st.file_uploader("Upload loan application documents (PDF)", type=["pdf"], accept_multiple_files=True)
     
     if uploaded_files:
-
-        with st.spinner("Extracting Text from Documents..."):
+        with st.spinner("Processing Documents..."):
             extracted_text = extract_text_from_multiple_pdfs(uploaded_files)
-        st.success("Text Extracted Successfully")
-        
-        
-        
+        st.success(f"Successfully processed {len(uploaded_files)} documents")
 
-        if st.button('Analyze Loan Documents'):
-            with st.expander("Summary"):
-                with st.spinner("Generating Summary..."):
-                    summary = process_loan_summary(extracted_text)
-                    if summary:
-                        st.subheader("Loan Summary")
-                        st.write(summary)
-            
-            with st.expander("Detailed Analysis"):
-                with st.spinner("Performing Detailed Analysis..."):
-                    detailed_analysis = process_detailed_analysis(extracted_text)
-                    if detailed_analysis:
-                        st.subheader("Detailed Loan Analysis")
-                        st.write(detailed_analysis)
+        if st.button('Generate Loan Summary'):
+            with st.spinner("Analyzing documents and generating summary..."):
+                loan_summary = generate_loan_summary(extracted_text)
+                if loan_summary:
+                    display_summary(loan_summary)
+                    
+                    # Add download button for the summary
+                    st.download_button(
+                        label="Download Summary",
+                        data=loan_summary,
+                        file_name="loan_summary.txt",
+                        mime="text/plain"
+                    )
     
     else:
-        st.write("Please upload loan application documents to begin analysis.")
+        st.write("Please upload the required loan application documents to begin analysis.")
 
 if __name__ == "__main__":
     main()
