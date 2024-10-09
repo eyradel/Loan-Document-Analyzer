@@ -147,18 +147,18 @@ def main():
             extracted_text = extract_text_from_multiple_pdfs(uploaded_files)
         st.success("Text Extracted Successfully")
         
-        col1, col2 = st.columns([1, 2])
+        
         
 
         if st.button('Analyze Loan Documents'):
-            with col1:
+            with st.expander("Summary"):
                 with st.spinner("Generating Summary..."):
                     summary = process_loan_summary(extracted_text)
                     if summary:
                         st.subheader("Loan Summary")
                         st.write(summary)
             
-            with col2:
+            with st.expander("Detailed Analysis"):
                 with st.spinner("Performing Detailed Analysis..."):
                     detailed_analysis = process_detailed_analysis(extracted_text)
                     if detailed_analysis:
