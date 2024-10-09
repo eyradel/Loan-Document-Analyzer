@@ -1,0 +1,14 @@
+streamlit
+PyMuPDF
+python-docx
+transformers
+langchain
+langchain-community
+langchain-core  # For LangChain core functionalities like RetrievalQA
+langchain-huggingface
+langchain-text-splitters
+python-dotenv
+faiss-cpu
+torch
+openai
+sentence-transformers
