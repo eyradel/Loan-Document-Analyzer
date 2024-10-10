@@ -95,7 +95,7 @@ def get_completion(prompt):
 def generate_loan_summary(extracted_text):
     """Generate a comprehensive but concise loan summary."""
     prompt = f"""
-    Create a concise, one to two page summary of this loan application. Structure the summary as follows,If you input English docs you get English docs , if you input German docs you get German docs :
+    Create a concise, one to two page summary of this loan application, if the content is english get output in english and if content is german, get it in german. Structure the summary as follows:
 
     1. APPLICANT OVERVIEW
     - Full name, contact details (format appropriately)
