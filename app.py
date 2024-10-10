@@ -95,44 +95,75 @@ def get_completion(prompt):
 def generate_loan_summary(extracted_text):
     """Generate a comprehensive but concise loan summary."""
     prompt = f"""
-    Create a concise, one to two page summary of this loan application, if the content is english get output in english and if content is german, get it in german. Structure the summary as follows:
+   Create a concise, professional summary (1-2 pages) of the following loan application. If the content is in English, generate the summary in English using the English structure. If the content is in German, generate the summary in German with the German structure provided below.
 
-    1. APPLICANT OVERVIEW
-    - Full name, contact details (format appropriately)
-    - Brief employment status
-    - Key financial indicators (income, major assets)
+English Structure:
+1. Applicant Overview
 
-    2. LOAN REQUEST
-    - Amount requested
-    - Purpose of loan
-    - Proposed terms (if specified)
+Full name and contact details
+Employment status (brief description)
+Key financial indicators (e.g., income, major assets)
+2. Loan Request
 
-    3. DOCUMENTATION VERIFICATION
-    - List provided documents
-    - Note any missing critical documents
-    - Confirm validity of identity documents
+Requested loan amount
+Purpose of the loan
+Proposed loan terms (if specified)
+3. Documentation Verification
 
-    4. FINANCIAL ASSESSMENT
-    - Monthly income
-    - Debt-to-income ratio
-    - Major assets and liabilities
-    - Credit score/history summary
+List of submitted documents
+Highlight any missing critical documents
+Confirm the validity of identity documents
+4. Financial Assessment
 
-    5. RISK ANALYSIS
-    - Key strengths of application
-    - Potential concerns
-    - Mitigating factors
+Monthly income
+Debt-to-income ratio
+Major assets and liabilities
+Summary of credit score/history
+5. Risk Analysis
 
-    6. RECOMMENDATION
-    - Clear approval/denial recommendation
-    - If approved, suggested terms
-    - If denied, primary reasons
+Strengths of the application
+Potential concerns or risks
+Mitigating factors, if any
+6. Recommendation
 
-    Format the summary in a professional, easy-to-read manner. Be concise but thorough.
-    Use bullet points where appropriate for readability.
+Clear recommendation (approval or denial)
+If approved, suggest terms
+If denied, outline key reasons
+German Structure:
+1. Überblick des Antragstellers
 
-    Documents text:
-    {extracted_text}
+Vollständiger Name und Kontaktdaten
+Beschäftigungsstatus (kurze Beschreibung)
+Wichtige Finanzkennzahlen (z.B. Einkommen, wesentliche Vermögenswerte)
+2. Kreditantrag
+
+Beantragter Kreditbetrag
+Zweck des Kredits
+Vorgeschlagene Kreditbedingungen (falls angegeben)
+3. Dokumentenprüfung
+
+Liste der eingereichten Dokumente
+Hervorhebung fehlender kritischer Dokumente
+Bestätigung der Gültigkeit der Identitätsdokumente
+4. Finanzbewertung
+
+Monatliches Einkommen
+Schulden-Einkommens-Verhältnis
+Wichtige Vermögenswerte und Verbindlichkeiten
+Zusammenfassung der Kreditwürdigkeit/Geschichte
+5. Risikobewertung
+
+Stärken des Antrags
+Potenzielle Bedenken oder Risiken
+Mögliche mildernde Faktoren
+6. Empfehlung
+
+Klare Empfehlung (Genehmigung oder Ablehnung)
+Wenn genehmigt, Vorschlag von Bedingungen
+Wenn abgelehnt, wichtige Gründe nennen
+Ensure the summary is clear, concise, and professional. Use bullet points for readability, and adjust the structure and tone to match the selected language.
+
+Document content: {extracted_text}
     """
     return get_completion(prompt)
 
